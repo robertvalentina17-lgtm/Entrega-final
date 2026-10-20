@@ -1,0 +1,634 @@
+{
+  "name": "Worker 2 - Cambio de opinión",
+  "nodes": [
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "={\n  \"type\": \"object\",\n  \"required\": [\n    \"intencion_cliente\",\n    \"motivo\",\n    \"turno_encontrado\",\n    \"borrador_correo\"\n  ],\n  \"properties\": {\n    \"intencion_cliente\": {\n      \"type\": \"string\",\n      \"enum\": [\"cancelar\", \"reprogramar\", \"otro\"],\n      \"description\": \"Indica si el cliente opta por cancelar o si está pidiendo otra opción de turno.\"\n    },\n    \"motivo\": {\n      \"type\": \"string\",\n      \"description\": \"Breve explicación basada en la respuesta del cliente.\"\n    },\n    \"turno_encontrado\": {\n      \"type\": \"object\",\n      \"required\": [\"fecha\", \"hora\"],\n      \"properties\": {\n        \"fecha\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Fecha en formato YYYY-MM-DD o null si canceló.\"\n        },\n        \"hora\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Hora en formato HH:MM o null si canceló.\"\n        }\n      }\n    },\n    \"borrador_correo\": {\n      \"type\": \"object\",\n      \"required\": [\"asunto\", \"cuerpo\"],\n      \"properties\": {\n        \"asunto\": {\n          \"type\": \"string\",\n          \"description\": \"Asunto correspondiente al correo.\"\n        },\n        \"cuerpo\": {\n          \"type\": \"string\",\n          \"description\": \"Texto completo del correo redactado y listo para que el taller lo envíe.\"\n        }\n      }\n    }\n  }\n}"
+      },
+      "id": "efb92ffe-d292-47fc-9716-ffacc44ee5c7",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2800,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2512,
+        368
+      ],
+      "id": "7c7a631a-4a9f-494b-b642-4f7741a3a618",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "UXIQrtFaqXJO8kgO",
+          "name": "OpenAI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "={{ $json.Correo }}",
+        "subject": "Reprogramación o cancelación",
+        "message": "=¡Hola! Entendemos que no a aceptado la propuesta enviada para el día {{ $json.Fecha }} a las {{ $json.Hora }}\n\nPor favor, respondé a este mismo correo indicándonos a que se debe:\n\nNo puedo en ese horario: Buscaremos alternativas en nuestra agenda y nos comunicaremos a la brevedad posible al contacto proporcionado.\n\nDesestimar la solicitud: Si preferís dejarlo para más adelante, avisanos y cancelamos el pedido sin problemas. \n\n¡Muchas gracias!\n\nSaludos,\n\nEl equipo de MLT Probikes",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "No puedo en ese horario:",
+            "disapproveLabel": "Desestimar la solicitud"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2240,
+        160
+      ],
+      "id": "a8119f64-a132-4f4d-b328-2541c3f82192",
+      "name": "Gmail: Consultar Reprogramación / Cancelación",
+      "webhookId": "77e6afd1-209a-4e41-8e8f-c9861dff3a55",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GeWaOYKswhRs1gDX",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f8701e93-4599-4a8c-9c7e-63483df0b1c0",
+              "leftValue": "={{ $json.output.intencion_cliente }}",
+              "rightValue": "reprogramar",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2944,
+        144
+      ],
+      "id": "9cdf7759-c048-4b31-9e08-27d04ea801e3",
+      "name": "If: ¿Desea Reprogramar?"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analiza la respuesta del cliente e indentifica su intención",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Eres un asistente de IA experto en operaciones y atención al cliente para un taller mecánico. Tu objetivo es analizar la respuesta del cliente para identificar si desea cancelar su solicitud o si está pidiendo una opción de horario alternativa, utilizando obligatoriamente los datos del turno original provistos por el sistema.\n\n### DATOS DEL TURNO RECHAZADO (REFERENCIA):\n- Servicio: {{ $('Start').item.json.Servicio }}\n- Cliente: {{ $('Start').item.json.Nombre }} {{ $('Start').item.json.Apellido }}\n- Fecha original: {{ $('Start').item.json.Fecha }}\n- Hora original: {{ $('Start').item.json.Hora }}\n- Correo del cliente: {{ $('Start').item.json.Correo }}\n\n### RESPUESTA DEL CLIENTE A ANALIZAR:\n- El valor de la respuesta es: {{ $json.data.approved }}\n- Regla de decisión: \n  * Si el valor es \"true\", el cliente desea reprogramar y busca una opción de turno alternativa.\n  * Si el valor es \"false\", el cliente desea cancelar definitivamente su solicitud.\n\n### TAREAS A REALIZAR SEGÚN LA INTENCIÓN:\n\n1. SI LA RESPUESTA ES \"true\" (REPROGRAMAR):\n   - Identifica que el cliente no puede asistir en el horario original y prefiere otra opción.\n   - Utiliza la herramienta disponible (`consultar_turnos_disponibles`) para buscar al menos tres turnos libres cercanos.\n   - Redacta un borrador de correo profesional y cordial dirigido a {{ $('Start').item.json.Nombre }} {{ $('Start').item.json.Apellido }}, ofreciendo disculpas por el inconveniente, mencionando el servicio de {{ $('Start').item.json.Servicio }} y proponiendo los tres nuevos turnos disponibles para solicitar su confirmación. No dejes etiquetas con llaves de código dentro del texto del correo, escribe los datos de forma limpia.\n\n2. SI LA RESPUESTA ES \"false\" (CANCELAR):\n   - Identifica que la intención es la cancelación definitiva de la solicitud.\n   - No busques turnos nuevos ni redactes correos de propuesta para el cliente.\n   - Genera únicamente una notificación interna dirigida al mecánico informando de forma clara que el cliente {{ $('Start').item.json.Nombre }} {{ $('Start').item.json.Apellido }} ha cancelado su solicitud para el servicio de {{ $('Start').item.json.Servicio }} programado originalmente para el {{ $('Start').item.json.Fecha }} a las {{ $('Start').item.json.Hora }}."
+        }
+      },
+      "id": "7edae103-114e-4379-b889-600d82cb2d66",
+      "name": "AI Agent - Triage y Redaccion",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2592,
+        144
+      ],
+      "notes": "El cerebro del pipeline: clasifica y PRE-redacta. El borrador que produce nunca llega solo al cliente: el guardrail Create Draft (nodo 3 de la rubrica) fuerza la aprobacion humana."
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLmKFsO7AqAARkl",
+          "mode": "list",
+          "cachedResultName": "Errores en el workflow",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tblLmKFsO7AqAARkl"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Mensaje": "={{ $json.message }}",
+            "Error": "={{ $json.error.level }}",
+            "Nombre": "={{ $json.error.context.itemIndex }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje",
+              "displayName": "Mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        3888,
+        128
+      ],
+      "id": "6bef35ee-0872-4de1-b00b-9deb3cf599b7",
+      "name": "Registra el error1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl154cjtDSIA5gTP",
+          "mode": "list",
+          "cachedResultName": "Solicitudes sin aplicar",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tbl154cjtDSIA5gTP"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Cliente": "={{ $('Start').item.json.Nombre }} {{ $('Start').item.json.Apellido }}",
+            "Servicio": "={{ $('Start').item.json.Servicio }}",
+            "Email": "={{ $('Start').item.json.Correo }}",
+            "Asunto del borrador": "={{ $('If: ¿Desea Reprogramar?').item.json.output.borrador_correo.asunto }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contacto",
+              "displayName": "Contacto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Servicio",
+              "displayName": "Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Asunto del borrador",
+              "displayName": "Asunto del borrador",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        3552,
+        -112
+      ],
+      "id": "6a0f2fe0-0973-41eb-a862-85e53e9231b6",
+      "name": "Airtable: Guardar Pendiente de Revisión",
+      "retryOnFail": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.output.borrador_correo.asunto }}",
+        "message": "={{ $json.output.borrador_correo.cuerpo }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3328,
+        -112
+      ],
+      "id": "710c8c3c-34ff-4326-aede-aaf26a85f391",
+      "name": "Create a draft",
+      "webhookId": "9e63e4e9-6b49-461a-9ad6-456bdae21fd4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GeWaOYKswhRs1gDX",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a38dd0cf-d18d-474e-8a5c-6d27e7b297b8",
+              "name": "Worker_Invocado",
+              "value": "Declinación de turno",
+              "type": "string"
+            },
+            {
+              "id": "47d145ee-4514-4f7a-834a-1e4b9f84068c",
+              "name": "Registro_Airtable agenda",
+              "value": "=Datos de cliente: {{ $json.fields.Cliente }}, {{ $json.fields.Servicio }}, {{ $json.fields.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "5abc8161-b1a9-46cc-844f-2fb67c9e8734",
+              "name": "Respuesta_Worker",
+              "value": "=El mecánico necesita revisar su casilla de borrador. Asunto  {{ $json.fields['Asunto del borrador'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3904,
+        -128
+      ],
+      "id": "d519014e-3784-4436-a9c9-de35967c3c3b",
+      "name": "Return: Objeto Resultado Excepción"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Correo",
+              "type": "any"
+            },
+            {
+              "name": "Fecha",
+              "type": "any"
+            },
+            {
+              "name": "Hora",
+              "type": "any"
+            },
+            {
+              "name": "Apellido",
+              "type": "any"
+            },
+            {
+              "name": "Nombre",
+              "type": "any"
+            },
+            {
+              "name": "Servicio",
+              "type": "any"
+            },
+            {
+              "name": "If_El_cliente_Acept_Turno_Apellido",
+              "type": "any"
+            },
+            {
+              "name": "If_El_cliente_Acept_Turno_Servicio",
+              "type": "any"
+            },
+            {
+              "name": "If_El_cliente_Acept_Turno_Nombre",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "id": "c4facdb8-5730-4530-afe5-6f556f41ac98",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        2032,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a37d748d-3604-4497-aa56-8421e8a57d19",
+              "name": "Respuesta_Worker",
+              "value": "={{ $json.Respuesta_Worker }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4192,
+        352
+      ],
+      "id": "2eb06ced-ee2c-4e7b-aa1e-753c31f58063",
+      "name": "Return: Objeto Resultado Excepción2"
+    },
+    {
+      "parameters": {
+        "chatId": "755835900",
+        "text": "El cliente a cancelado su solicitud, por lo que no se ha registrado el turno.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3568,
+        352
+      ],
+      "id": "922852f8-583d-4705-9439-73b774a6bdf4",
+      "name": "Telegram: Alerta Cancelación Taller",
+      "webhookId": "bc371771-fd44-468f-b7db-11ad64e9b596",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "SZjU7DHSc4LGQZiT",
+          "name": "MLT BOT"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Registra el error1": {
+      "main": [
+        [
+          {
+            "node": "Return: Objeto Resultado Excepción2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Consultar Reprogramación / Cancelación": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Triage y Redaccion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: ¿Desea Reprogramar?": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram: Alerta Cancelación Taller",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Guardar Pendiente de Revisión": {
+      "main": [
+        [
+          {
+            "node": "Return: Objeto Resultado Excepción",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registra el error1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Triage y Redaccion": {
+      "main": [
+        [
+          {
+            "node": "If: ¿Desea Reprogramar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent - Triage y Redaccion",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Guardar Pendiente de Revisión",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Triage y Redaccion",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return: Objeto Resultado Excepción": {
+      "main": [
+        []
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Consultar Reprogramación / Cancelación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return: Objeto Resultado Excepción2": {
+      "main": [
+        []
+      ]
+    },
+    "Telegram: Alerta Cancelación Taller": {
+      "main": [
+        [
+          {
+            "node": "Return: Objeto Resultado Excepción2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "99bca745-9316-4cfa-9807-77c81d47a9f9",
+  "meta": {
+    "instanceId": "88111f2ad278f45ab06a346ed0cbab7bc26eb2a1a0211a72352740cb92283f05"
+  },
+  "nodeGroups": [],
+  "id": "qkLVzwL51h2pLqzk",
+  "tags": []
+}

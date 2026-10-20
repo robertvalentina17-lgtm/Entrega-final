@@ -1,0 +1,2496 @@
+{
+  "name": "Worker Manager - Sistema Inteligente de Agendamiento de turnos MLT 5",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -2672,
+        -288
+      ],
+      "id": "1f606b92-a7c4-496c-908e-e98e567c926d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Consulta la tabla de precios y catálogo de servicios de mantenimiento en Airtable para obtener el costo exacto del servicio solicitado por el cliente.",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl3X2kAF4jBCqfDU",
+          "mode": "list",
+          "cachedResultName": "Servicios",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tbl3X2kAF4jBCqfDU"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.2,
+      "position": [
+        -2432,
+        -336
+      ],
+      "id": "042de9be-4105-4617-a071-368b785697e0",
+      "name": "consultar_precio_servicio",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Consulta la tabla de agenda en Airtable para encontrar turnos con estado Disponible según la fecha u horario solicitados",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbloLa14OuyP4dU98",
+          "mode": "list",
+          "cachedResultName": "Agenda",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tbloLa14OuyP4dU98"
+        },
+        "filterByFormula": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.2,
+      "position": [
+        -2576,
+        -416
+      ],
+      "id": "7a475a01-e343-4300-9f24-34913f797d15",
+      "name": "consultar_turnos_disponibles",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "755835900",
+        "text": "Se ha registrado un nuevo turno. Por favor revisar la agenda. ",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1072,
+        -1248
+      ],
+      "id": "60da804f-11e4-455b-8a57-5b7aa7bcc603",
+      "name": "Notificar al mecánico el nuevo turno",
+      "webhookId": "607ef374-7bea-4b58-8a31-469c577171ae",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "SZjU7DHSc4LGQZiT",
+          "name": "MLT BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "755835900",
+        "text": "=Por favor revisa tu casilla de borradores para confirmar opciones de turno para la solicitud de {{ $('If3').item.json.Nombre }} {{ $('If3').item.json.Apellido }} ya que ha cambiado de opinión con respecto a la opción anterior. ",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1216,
+        -1056
+      ],
+      "id": "429d6979-b2fd-49f6-ae67-80ee64164cf5",
+      "name": "Avisar al mecánico sobre nueva solicitud a revisar",
+      "webhookId": "4d5cf92d-10ac-4a75-b61b-410f187c0c17",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "SZjU7DHSc4LGQZiT",
+          "name": "MLT BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "18cd438b-3cca-48b1-9137-b0737c2756bc",
+              "leftValue": "={{ $json.fields.Respuesta_Worker }}",
+              "rightValue": "El mecánico necesita revisar su casilla de borrador",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        -864
+      ],
+      "id": "0ff1bcfb-8aa5-4a2f-8860-e3a6e024f32d",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('JS: Extraer Datos Turno').item.json.Correo }}",
+        "subject": "=No pudimos procesar tu solicitud ",
+        "message": "=¡Hola! En este momento no pudimos registrar tu turno de forma automática en el sistema, pero no te preocupes. Nos vamos a comunicar con vos a la brevedad al para coordinar el horario directamente con el mecánico y dejar todo listo. ¡Muchas gracias por tu paciencia!",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        -512
+      ],
+      "id": "621ae8d3-9e5e-4bf4-926e-dfd525c3f3e2",
+      "name": "Notificar al cliente la decisión del mecánico",
+      "webhookId": "7b5b69f9-c321-4c55-bf01-a4600a92cf88",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GeWaOYKswhRs1gDX",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -3472,
+        -816
+      ],
+      "id": "09d0926d-372f-4a61-b164-f9d6dc24d54f",
+      "name": "Webhook: Mensaje Chat Cliente",
+      "webhookId": "d2e223c4-ddb3-4c94-b62b-bbd5a53043b5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook: Mensaje Chat Cliente').first()?.json?.chatInput || 'hola' }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=[INICIO DE CONTEXTO COMPARTIDO]\nCONFIGURACIÓN DE IDENTIDAD Y MEMORIA DE LARGO PLAZO:\nEl usuario se llama {{ $json['Nombre y apellido'] || 'Usuario Nuevo' }}. \nEl contexto de vuestra última charla es: {{ $json.last_summary || 'Sin historial previo' }}.\n[FIN DEL CONTEXTO COMPARTIDO]\n\n------------------------------------------------------------------\nROL Y OBJETIVO\n------------------------------------------------------------------\nEres el Coordinador Inteligente de MLT Pro Bikes / Beró Motos en n8n. Tu función es atender al cliente vía chat evaluando el CONTEXTO ENTRADA recibido, responder dudas puntuales sobre los servicios (precios, repuestos, demora, contenido) y gestionar la agendación de turnos.\n\n------------------------------------------------------------------\nREGLA DE ORO DE RESPUESTA DIRECTA Y CONCISA\n------------------------------------------------------------------\nCuando consultes los manuales o herramientas (`buscar_manual_marketing1` o `buscar_manual_servicios1`):\n- RESPONDE ÚNICA Y EXCLUSIVAMENTE LO QUE EL USUARIO PREGUNTÓ durante la conversación fluida.\n- Si el usuario solo pregunta por el PRECIO, responde únicamente el precio del servicio consultado.\n- Si pregunta qué INCLUYE o qué REPUESTOS trae, limita tu respuesta a ese dato específico.\n- Queda PROHIBIDO desplegar tablas completas o textos explicativos largos durante la interacción previa.\n- Los costos siempre están expresados en pesos argentinos ($).\n\n------------------------------------------------------------------\nMAPEO Y USO DE HERRAMIENTAS\n------------------------------------------------------------------\n1. `buscar_manual_servicios1` (Nodo HTTP / Llama):\n   - Úsalo obligatoriamente para obtener PRECIOS y COSTOS exactos del servicio.\n\n2. `buscar_manual_marketing1` (Nodo Pinecone / RAG):\n   - Úsalo obligatoriamente para obtener DETALLES ESPECÍFICOS: qué incluye, repuestos incluidos y tiempo de demora del servicio.\n\n3. `consultar_turnos_disponibles` (Airtable Agenda):\n   - Úsalo para obtener la fecha y hora disponible al momento de proponer o agendar un turno.\n\n------------------------------------------------------------------\nREGLAS DE FALLBACK Y ESCAPE\n------------------------------------------------------------------\n1. MENSAJES FUERA DE ÁMBITO O AMBIGUOS:\n   Si el mensaje no está relacionado con el taller:\n   \"Disculpame, como asistente de Beró Motos solo puedo ayudarte con el agendamiento de turnos de taller y consultas sobre nuestros servicios. ¿En qué puedo ayudarte hoy?\"\n\n2. FALLO DE HERRAMIENTAS O DATOS INCOMPLETOS:\n   Si alguna herramienta falla durante la atención inicial:\n   \"En este momento no pude verificar esa información en nuestro sistema. Si querés, podés dejarme tu consulta detallada y un asesor del taller te contactará a la brevedad.\"\n\n------------------------------------------------------------------\nEVALUACIÓN DE CONTEXTO Y REGLAS DE RESPUESTA\n------------------------------------------------------------------\n\nCAMINO A: CLIENTE EXISTENTE (Si CONTEXTO ENTRADA contiene 'CLIENTE EXISTENTE')\n1. Lee los datos de la RESERVA GUARDADA recuperados de Airtable Agenda.\n2. Saluda e informa de manera amable los detalles del turno guardado (Nombre, Apellido, Servicio, Fecha, Hora, Correo).\n3. Agrega:\n   \"Ya tienes un turno registrado con nosotros. Si necesitas reprogramar o modificar los detalles de tu cita, por favor comunícate a nuestro teléfono de atención 357596525.\"\n\n------------------------------------------------------------------\n\nCAMINO B: NUEVO CLIENTE (Si CONTEXTO ENTRADA es 'NUEVO CLIENTE')\n\nPASO 1: Bienvenida Inicial\n- Ante un saludo, preséntate brevemente e indica los servicios disponibles:\n  - Mecánica general\n  - Diagnóstico electrónico\n  - Transmisión y cadena\n  - Frenos\n  - Suspensión\n  - Ruedas\n  - Servicio express\n\nPASO 2: Indagación del Interés\n- Cuando mencione un servicio:\n  \"¿Te gustaría conocer el costo de este servicio o necesitas saber más detalles sobre lo que incluye?\"\n\nPASO 3: Respuesta Puntual a Consultas\n- Responde únicamente lo consultado por el usuario usando las herramientas correspondientes.\n- Si te pregunta algo fuera de tu alcance o manuales, contesta \"No sé\".\n\nPASO 4: Propuesta de Turno\n- Consulta `consultar_turnos_disponibles` para obtener el primer turno disponible.\n- Muestra Servicio, Costo, Fecha y Hora sugeridos.\n- Solicita confirmación:\n  \"Si deseas solicitar este turno, por favor responde indicando que quieres avanzar y déjanos tu Nombre, Apellido y correo de Gmail para registrar la solicitud.\"\n\n------------------------------------------------------------------\nPASO 5: GENERACIÓN OBLIGATORIA DEL RESUMEN Y CIERRE (ÚLTIMO MENSAJE)\n------------------------------------------------------------------\nREGLA ESTRICTA DE ACTIVACIÓN:\nÚNICAMENTE cuando el cliente haya confirmado el turno Y proporcionado su Nombre, Apellido y un correo válido (@gmail.com).\n\nINSTRUCCIÓN DE RECUPERACIÓN COMPLETA DE DATOS (OBLIGATORIA):\nAntes de redactar el mensaje final, DEBES verificar que posees TODOS y cada uno de los siguientes ítems. \nSi alguno de estos datos NO estuvo en el historial de la conversación o falta en tu memoria local, ES OBLIGATORIO QUE INVOQUES LAS HERRAMIENTAS CORRESPONDIENTES EN ESTE MOMENTO PARA OBTENERLOS antes de responder:\n- Costo -> `buscar_manual_servicios1`\n- Qué Incluye -> `buscar_manual_marketing1`\n- Repuestos incluidos -> `buscar_manual_marketing1`\n- Demora -> `buscar_manual_marketing1`\n\nESTRUCTURA DEL MENSAJE FINAL (Respetar formato exacto):\n\nTu solicitud ha sido registrada con éxito. Queda pendiente de confirmación; te enviaremos un correo electrónico cuando el mecánico acepte el turno.\n\nResumen de solicitud:\nServicio: [Nombre del servicio seleccionado]\nCosto del servicio: $[Costo exacto en pesos]\nFecha: [Fecha del turno en formato D/M/YYYY, ej: 27/7/2026]\nHora: [Horario del turno con la palabra \"horas\", ej: 18:00 horas]\nCorreo de contacto: [Gmail del cliente]\nNombre: [Nombre del cliente]\nApellido: [Apellido del cliente]\nIncluye: [Detalle completo recuperado del manual/chat de qué incluye el servicio]\nRepuestos incluidos: [Detalle exacto recuperado del manual/chat sobre repuestos que incluye]\nDemora: [Tiempo o plazo de demora recuperado del manual/chat]\nID CHAT: {{ $('Webhook: Mensaje Chat Cliente').first()?.json?.sessionId || 'Sin_ID' }}\n\n------------------------------------------------------------------\nPROHIBICIÓN STRICTA DE PREGUNTAS FINALIZADORAS\n------------------------------------------------------------------\n- Al emitir el RESUMEN DE SOLICITUD (Paso 5), queda TOTALMENTE PROHIBIDO incluir al final preguntas o frases de cortesía conversacional, como por ejemplo: \"¿Hay algo más en lo que pueda ayudarte?\", \"¿Necesitas algo más?\", etc.\n- El mensaje DEBE finalizar de forma absoluta e inmediata en la línea de \"ID CHAT: ...\".",
+          "maxIterations": 6
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -2672,
+        -640
+      ],
+      "id": "decf5d65-3f5d-416d-aa87-008a62c43164",
+      "name": "Orquestador Turnos",
+      "executeOnce": false,
+      "retryOnFail": false,
+      "maxTries": 5,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "755835900",
+        "message": "=Hola. Ha ingresado una solicitud de servicio de {{ $('JS: Extraer Datos Turno').item.json.Servicio }}.\nCosto del servicio: {{ $('JS: Extraer Datos Turno').item.json.Costo }}\n\nRevisé la agenda en la base de datos y hay lugar disponible para el día {{ $('JS: Extraer Datos Turno').item.json.Fecha }} a las {{ $('JS: Extraer Datos Turno').item.json.Hora }}\n\nPor favor, revisá la viabilidad técnica y hacé clic en el botón de abajo para aprobar definitivamente este turno y notificar al cliente.",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        -912
+      ],
+      "id": "021d808a-ccd2-49b2-9f0e-3ac8a31bfaca",
+      "name": "Validar Factibilidad con Mecánico",
+      "webhookId": "04bd4dff-dc32-466e-b846-46c9e2ac1026",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "SZjU7DHSc4LGQZiT",
+          "name": "MLT BOT"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.approved }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    },
+                    "id": "6daee7d9-1249-460e-bbd1-b3ee3f3a541b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TURNO_ACEPTADO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a3cf269e-7d9d-41a8-a18f-4acb5a57c92f",
+                    "leftValue": "={{ $json.data.approved }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TURNO_DECLINADO"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -208,
+        -912
+      ],
+      "id": "7dd5dd11-ee98-4f6e-83b8-d5464f959258",
+      "name": "Switch: Evaluar Respuesta Mecánico"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "={{ $('JS: Extraer Datos Turno').item.json.Correo }}",
+        "subject": "=Solicitud de confirmación de turno para Servicio de  {{ $('JS: Extraer Datos Turno').item.json.Servicio }}",
+        "message": "=¡Hola, \n\nHemos recibido tu solicitud de turno para realizar el servicio en tu moto. A continuación, te compartimos los detalles:\n\n Servicio:{{ $('JS: Extraer Datos Turno').item.json.Servicio }}\n Fecha: {{ $('JS: Extraer Datos Turno').item.json.Fecha }}\n Turno:{{ $('JS: Extraer Datos Turno').item.json.Hora }}\n Precio estimado:{{ $('JS: Extraer Datos Turno').item.json.Costo }}\n\n\nPor favor, revisá la información y confirmá tu turno respondiendo a este correo \"Acepto\".\n\nUna vez que aceptes, tu turno quedará registrado y confirmado en nuestro sistema.\n\nSi has cambiado de opinión y  necesitas otra opción o cancelar la solcitud por favor contesta a este email con \"No puedo aceptar esta opción\" y nos contactaremos.\n\n¡Gracias por confiar en nosotros! 🏍️🔧\n\nTaller de Motos MLT ProBikes\"",
+        "responseType": "freeText",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        -1168
+      ],
+      "id": "fe96af45-30a5-4f9c-90e9-820d7e36c1a0",
+      "name": "Gmail: Solicitar Aprobación Cliente",
+      "webhookId": "36e6d768-57b9-4721-a977-d0f40408f3c3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GeWaOYKswhRs1gDX",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3ec7a231-efee-4e1b-ab04-acfe3cb105b5",
+              "leftValue": "={{ $json.data.text }}",
+              "rightValue": "Acepto",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        -912
+      ],
+      "id": "9624adf8-5ffd-407f-bcbb-743cb8c060e3",
+      "name": "If: ¿El cliente Aceptó Turno?"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbluXypFOWhIloDRk",
+          "mode": "list",
+          "cachedResultName": "Subworflow",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tbluXypFOWhIloDRk"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Worker_Invocado": "Registro de nuevo turno",
+            "Fecha_Ejecucion": "=={{ $now.format('DD HH:mm:ss') }}",
+            "Parametros_Enviados": "={{ $json['Registro_Airtable agenda'] }}",
+            "Respuesta_Worker": "={{ $json.Respuesta_Worker }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha_Ejecucion",
+              "displayName": "Fecha_Ejecucion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Worker_Invocado",
+              "displayName": "Worker_Invocado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Parametros_Enviados",
+              "displayName": "Parametros_Enviados",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Worker",
+              "displayName": "Respuesta_Worker",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -1328
+      ],
+      "id": "a28f2d32-99c9-4b46-9eb6-f14d00e1b4fd",
+      "name": "Airtable: Guardar Log Worker 1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbluXypFOWhIloDRk",
+          "mode": "list",
+          "cachedResultName": "Subworflow",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tbluXypFOWhIloDRk"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Worker_Invocado": "Declinación de turno",
+            "Fecha_Ejecucion": "=={{ $now.format('YYYY-MM-DD HH:mm:ss') }}",
+            "Parametros_Enviados": "={{ $json['Registro_Airtable agenda'] }}",
+            "Respuesta_Worker": "={{ $json.Respuesta_Worker }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha_Ejecucion",
+              "displayName": "Fecha_Ejecucion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Worker_Invocado",
+              "displayName": "Worker_Invocado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Parametros_Enviados",
+              "displayName": "Parametros_Enviados",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Worker",
+              "displayName": "Respuesta_Worker",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -960
+      ],
+      "id": "476f1d43-8446-4f13-96de-2d0fb9d05e0d",
+      "name": "Airtable: Guardar Log Worker 2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d1cb1cb2-2d1f-46b3-85fa-f9f5caa5ac15",
+              "leftValue": "={{ $('Orquestador Turnos').item.json.output }}",
+              "rightValue": "Resumen de solicitud",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1280,
+        -672
+      ],
+      "id": "6c5ca369-ac9b-43a2-b8d7-f3918b5a99d2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "755835900",
+        "text": "El cliente a cancelado su solicitud, por lo que no se ha registrado el turno.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1216,
+        -736
+      ],
+      "id": "2f7ded04-dfac-4550-b0a2-8fdbe3b608d4",
+      "name": "Telegram: Alerta Cancelación Taller",
+      "webhookId": "9e80d097-9fb9-430c-8bd8-a812cc1253b3",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "SZjU7DHSc4LGQZiT",
+          "name": "MLT BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "WyA7Q2Y9jeEQhdo9",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/WyA7Q2Y9jeEQhdo9",
+          "cachedResultName": "Nuevo registro"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $json.Fecha }}",
+            "Apellido": "={{ $json.Apellido }}",
+            "Nombre": "={{ $json.Nombre }}",
+            "Servicio": "={{ $json.Servicio }}",
+            "Correo": "={{ $json.Correo }}",
+            "Hora": "={{ $json.Hora }}",
+            "ChatID": "={{ $json.ChatID }}"
+          },
+          "matchingColumns": [
+            "Fecha",
+            "Apellido",
+            "Nombre",
+            "Servicio",
+            "Correo",
+            "Hora",
+            "ChatID"
+          ],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Apellido",
+              "displayName": "Apellido",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Servicio",
+              "displayName": "Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Correo",
+              "displayName": "Correo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hora",
+              "displayName": "Hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ChatID",
+              "displayName": "ChatID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        704,
+        -1248
+      ],
+      "name": "Call Nuevo registro",
+      "id": "ade48c2c-d07b-43cb-a780-5fd1a347a41f"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ctx-1",
+              "name": "contexto_operativo",
+              "value": "NUEVO CLIENTE",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3ec304a2-923c-42a8-9b3e-df5f7ee55057",
+      "name": "NUEVO CLIENTE",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2928,
+        -432
+      ],
+      "notes": "EN VIVO: cambiar el valor entre 'CONSULTA DE RUTINA' y 'EMERGENCIA MEDICA' entre ejecuciones. Es el unico cambio manual de todo el demo."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ctx-1",
+              "name": "contexto_operativo",
+              "value": "CLIENTE EXISTENTE",
+              "type": "string"
+            },
+            {
+              "id": "9603cd1c-6eea-4a24-a1c1-cd8f21c7e4a2",
+              "name": "last_summary",
+              "value": "=={{ $('Airtable - Buscar memoria (Session_ID)').item.json.fields['Asunto Principal'] ? $('Airtable - Buscar memoria (Session_ID)').item.json.fields['Asunto Principal'] + ' - ' + $('Airtable - Buscar memoria (Session_ID)').item.json.fields['Puntos Clave'] : 'Sin historial previo' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "12ce07e9-9234-4b3f-ac18-831ec8512d93",
+      "name": "CLIENTE EXISTENTE",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2928,
+        -784
+      ],
+      "notes": "EN VIVO: cambiar el valor entre 'CONSULTA DE RUTINA' y 'EMERGENCIA MEDICA' entre ejecuciones. Es el unico cambio manual de todo el demo."
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -2736,
+        -464
+      ],
+      "id": "ea13d4d7-3f70-4657-8c21-5de30fc25cc6",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "UXIQrtFaqXJO8kgO",
+          "name": "OpenAI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Obtener los ítems de entrada del nodo \"Orquestador Turnos\"\nconst items = $('Orquestador Turnos').all();\n\n// Si no hay ítems, retornar array vacío\nif (!items || items.length === 0) {\n    return [];\n}\n\n// 2. Función segura para extraer el valor tras una etiqueta sin usar RegExp\nfunction obtenerValor(texto, etiqueta) {\n    if (!texto) return \"No especificado\";\n    \n    // Normalizar texto eliminando asteriscos y saltos escapados\n    const textoLimpio = texto.replace(/\\\\n/g, \"\\n\").replace(/\\*\\*/g, \"\");\n    \n    const indiceEtiqueta = textoLimpio.toLowerCase().indexOf(etiqueta.toLowerCase() + \":\");\n    if (indiceEtiqueta === -1) return \"No especificado\";\n\n    // Cortar desde donde termina la etiqueta + los dos puntos\n    const inicioValor = indiceEtiqueta + etiqueta.length + 1;\n    const subtexto = textoLimpio.substring(inicioValor);\n\n    // El valor termina en el primer salto de línea que encuentre\n    const finLinea = subtexto.indexOf(\"\\n\");\n    let valor = finLinea !== -1 ? subtexto.substring(0, finLinea) : subtexto;\n\n    return valor.trim() || \"No especificado\";\n}\n\n// 3. Procesar cada ítem recibido y retornar el JSON estructurado\nreturn items.map(item => {\n    // Capturar la salida de texto del Orquestador (salida, text o output)\n    const textoProduccion = item.json.salida || item.json.text || item.json.output || \"\";\n\n    return {\n        json: {\n            Servicio: obtenerValor(textoProduccion, \"Servicio\"),\n            Costo: obtenerValor(textoProduccion, \"Costo del servicio\"),\n            Fecha: obtenerValor(textoProduccion, \"Fecha\"),\n            Hora: obtenerValor(textoProduccion, \"Hora\"),\n            Correo: obtenerValor(textoProduccion, \"Correo de contacto\"),\n            Nombre: obtenerValor(textoProduccion, \"Nombre\"),\n            Apellido: obtenerValor(textoProduccion, \"Apellido\"),\n            Incluye: obtenerValor(textoProduccion, \"Incluye\"),\n            RepuestosIncluidos: obtenerValor(textoProduccion, \"Repuestos incluidos\"),\n            Demora: obtenerValor(textoProduccion, \"Demora\"),\n            ChatID: obtenerValor(textoProduccion, \"ID CHAT\")\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1120,
+        -1008
+      ],
+      "id": "883934d1-84e4-4f5e-ab6d-19332e8af930",
+      "name": "JS: Extraer Datos Turno"
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "id": "1e20ffad-34f6-47cb-8917-594e8e396e2a",
+      "name": "Chat",
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.3,
+      "position": [
+        -2320,
+        -640
+      ],
+      "webhookId": "a9999158-f7d9-46a2-9c13-b89b5f28f327",
+      "notes": "El usuario recibe su respuesta ACA, antes de que el flujo decida si corresponde resumir y guardar. Igual a Demo 2."
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Sos un condensador de conversaciones comerciales. Analiza el siguiente intercambio y devolve UNICAMENTE un objeto JSON valido, sin texto adicional, sin backticks y sin explicaciones.\n\nFormato exacto:\n{\"asunto_principal\": \"tema central en una frase\", \"puntos_clave\": [\"hecho accionable 1\", \"hecho accionable 2\"], \"accion_requerida\": \"proximo paso concreto\"}\n\nContexto previo acumulado: {{ $('Orquestador Turnos').item.json.last_summary || 'ninguno' }}\nMensaje del cliente: {{ $('Webhook: Mensaje Chat Cliente').item.json.chatInput }}\nRespuesta del asesor: {{ $('Orquestador Turnos').item.json.output }}\n\nRegla critica: guarda SOLO hechos accionables (presupuestos, medidas, plazos, decisiones). Ignora saludos y charla social. Maximo 3 puntos_clave.",
+        "hasOutputParser": true
+      },
+      "id": "22b0db76-56c8-41d0-8deb-71ee4da80608",
+      "name": "Resumen JSON (Basic LLM Chain)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -1792,
+        -848
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "notes": "Idéntico al de Demo 2, con una diferencia de fondo: acá SOLO se ejecuta cuando el IF de arriba dio TRUE. Es la rama de resumen que la rúbrica pide activar al superar 5 intercambios."
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1760,
+        -688
+      ],
+      "id": "1d7295a7-55a4-49d7-9ae1-df7802383f91",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "UXIQrtFaqXJO8kgO",
+          "name": "OpenAI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  // Obtiene el texto buscando en 'Texto', 'text' u 'output'\n  let rawText = item.json.Texto || item.json.text || item.json.output || \"\";\n\n  // Remueve marcas de bloque de código como ```json ... ``` si el LLM las incluyó\n  rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\n  try {\n    const parsedData = JSON.parse(rawText);\n\n    item.json.asunto_principal = parsedData.asunto_principal || \"\";\n    item.json.puntos_clave = Array.isArray(parsedData.puntos_clave) \n      ? parsedData.puntos_clave.join('\\n• ') \n      : (parsedData.puntos_clave || \"\");\n    item.json.accion_requerida = parsedData.accion_requerida || \"\";\n  } catch (error) {\n    // Si no es un JSON válido, asigna valores por defecto\n    item.json.asunto_principal = rawText;\n    item.json.puntos_clave = \"\";\n    item.json.accion_requerida = \"\";\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1536,
+        -1024
+      ],
+      "id": "252e8bb5-4b71-48e6-847e-788c54a27082",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "asg-contador-actualizado",
+              "name": "contador_mensajes_actualizado",
+              "value": "={{ Number($('Airtable - Buscar memoria (Session_ID)').first().json.Contador || $('Airtable - Buscar memoria (Session_ID)').first().json.fields?.Contador || 0) + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "af1830d8-9f82-42ff-ba02-a2962c5a05b0",
+      "name": "Actualizar contador",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2096,
+        -640
+      ],
+      "notes": "UNICO nodo nuevo tipo Set de este demo. Suma 1 al contador que traiamos desde el inicio del flujo."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-umbral",
+              "leftValue": "={{ $json.contador_mensajes_actualizado }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d637a4cf-d2a5-428d-a025-8ebcd46e3c5e",
+      "name": "IF - Corresponde resumir? (>=5 intercambios)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1920,
+        -640
+      ],
+      "notes": "UNICO nodo nuevo tipo IF de este demo. TRUE: se llega o se supera el umbral, se resume y se persiste completo (y se resetea el contador). FALSE: se actualiza solo el contador, sin llamar al modelo economico."
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblMkF94GCNTApxk2",
+          "mode": "list",
+          "cachedResultName": "Summarización",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tblMkF94GCNTApxk2"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Contador": "={{ $json.contador_mensajes_actualizado }}",
+            "Session_ID": "={{ $('Webhook: Mensaje Chat Cliente').item.json.sessionId }}",
+            "Fecha de Actualización": "={{ $now.format('YYYY-MM-DD HH:mm:ss') }}"
+          },
+          "matchingColumns": [
+            "Session_ID"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Session_ID",
+              "displayName": "Session_ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Asunto Principal",
+              "displayName": "Asunto Principal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntos Clave",
+              "displayName": "Puntos Clave",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Acción Requerida",
+              "displayName": "Acción Requerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contador",
+              "displayName": "Contador",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de Actualización",
+              "displayName": "Fecha de Actualización",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "34f2bf6a-a9af-483f-8fcc-ba323af865e1",
+      "name": "Airtable - Actualizar solo contador (Upsert liviano)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1664,
+        -400
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "notes": "Mismo nodo tipo Airtable Upsert que ya conoces, usado una segunda vez: solo toca Session_ID y Contador_Mensajes. No llama a ningun modelo. Resumen_Consolidado y Estado_del_Caso quedan intactos."
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblMkF94GCNTApxk2",
+          "mode": "list",
+          "cachedResultName": "Summarización",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tblMkF94GCNTApxk2"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Puntos Clave": "={{ $json.puntos_clave }}",
+            "Asunto Principal": "={{ $json.asunto_principal }}",
+            "Acción Requerida": "={{ $json.accion_requerida }}",
+            "Contador": 0,
+            "Session_ID": "={{ $('Webhook: Mensaje Chat Cliente').item.json.sessionId }}",
+            "Fecha de Actualización": "={{ $now.format('YYYY-MM-DD HH:mm:ss') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Session_ID",
+              "displayName": "Session_ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Asunto Principal",
+              "displayName": "Asunto Principal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntos Clave",
+              "displayName": "Puntos Clave",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Acción Requerida",
+              "displayName": "Acción Requerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contador",
+              "displayName": "Contador",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de Actualización",
+              "displayName": "Fecha de Actualización",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -1424,
+        -800
+      ],
+      "id": "54e2c363-2a3d-46d2-a47e-3cb45f3429ad",
+      "name": "Registrar resumen",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblMkF94GCNTApxk2",
+          "mode": "list",
+          "cachedResultName": "Summarización",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tblMkF94GCNTApxk2"
+        },
+        "filterByFormula": "={Session_ID} = '{{ $json.sessionId }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -3296,
+        -608
+      ],
+      "id": "ebc20598-cea8-4eca-8e4a-2632b1b58575",
+      "name": "Airtable - Buscar memoria (Session_ID)",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "f246594f-5f2e-44f2-b739-0cd9baecbb28",
+      "name": "Stop - Correo automatico (no se responde)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -1296
+      ],
+      "notes": "Rama TRUE del filtro anti auto-reply: el correo es automatico y no se procesa. Sin este corte, un 'Fuera de oficina' del otro lado genera un ping-pong infinito de correos que colapsa la casilla y quema el presupuesto de tokens en horas."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a15f45d2-7c23-4076-92df-b887831cd360",
+              "leftValue": "={{ $json.Correo }}",
+              "rightValue": "@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        544,
+        -720
+      ],
+      "id": "dacc2c28-db45-4ea1-941d-3c347db3bfaa",
+      "name": "If3"
+    },
+    {
+      "parameters": {},
+      "id": "784ff293-ecf6-46fe-9152-998333cfe604",
+      "name": "Descartado - Payload invalido",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        704,
+        -656
+      ],
+      "notes": "Rama FALSE de la validacion: mejor descartar (o derivar a revision) que mandar al CRM una peticion que va a rebotar con 400."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "qkLVzwL51h2pLqzk",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/qkLVzwL51h2pLqzk",
+          "cachedResultName": "Cambio de opinión"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Correo": "={{ $('If3').item.json.Correo }}",
+            "Fecha": "={{ $('If3').item.json.Fecha }}",
+            "Hora": "={{ $('If3').item.json.Hora }}",
+            "Apellido": "={{ $('If3').item.json.Apellido }}",
+            "Nombre": "={{ $('If3').item.json.Nombre }}",
+            "Servicio": "={{ $('If3').item.json.Servicio }}",
+            "If_El_cliente_Acept_Turno_Apellido": "={{ $('If: ¿El cliente Aceptó Turno?').item.json.Apellido }}",
+            "If_El_cliente_Acept_Turno_Servicio": "={{ $('If: ¿El cliente Aceptó Turno?').item.json.Servicio }}",
+            "If_El_cliente_Acept_Turno_Nombre": "={{ $('If: ¿El cliente Aceptó Turno?').item.json.Nombre }}"
+          },
+          "matchingColumns": [
+            "Correo",
+            "Fecha",
+            "Hora",
+            "Apellido",
+            "Nombre",
+            "Servicio",
+            "If_El_cliente_Acept_Turno_Apellido",
+            "If_El_cliente_Acept_Turno_Servicio",
+            "If_El_cliente_Acept_Turno_Nombre"
+          ],
+          "schema": [
+            {
+              "id": "Correo",
+              "displayName": "Correo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hora",
+              "displayName": "Hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Apellido",
+              "displayName": "Apellido",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Servicio",
+              "displayName": "Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "If_El_cliente_Acept_Turno_Apellido",
+              "displayName": "If_El_cliente_Acept_Turno_Apellido",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "If_El_cliente_Acept_Turno_Servicio",
+              "displayName": "If_El_cliente_Acept_Turno_Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "If_El_cliente_Acept_Turno_Nombre",
+              "displayName": "If_El_cliente_Acept_Turno_Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        -864
+      ],
+      "name": "Call Cambio de opinión",
+      "id": "07b4a08b-5db3-4742-acf3-87b410960132"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ar-1",
+              "leftValue": "={{ $json.data.text }}",
+              "rightValue": "Auto-reply",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "ar-2",
+              "leftValue": "={{ $json.data.text }}",
+              "rightValue": "Out of office",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "ar-3",
+              "leftValue": "={{ $json.data.text }}",
+              "rightValue": "Undeliverable",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "ar-4",
+              "leftValue": "={{ $json.data.text }}",
+              "rightValue": "no-reply@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "1f9d241c-be07-42ef-b1cb-36d9950d4af1",
+              "leftValue": "={{ $json.data.text }}",
+              "rightValue": false,
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "b8a80ca2-692c-497c-9062-7503d8b91c53",
+      "name": "IF - Es auto-reply?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        80,
+        -1168
+      ],
+      "notes": "NODO 1 DE LA RUBRICA (35%): corta el bucle infinito de auto-respuestas. Modo OR: si el asunto trae Auto-reply / Out of office / Undeliverable, o el remitente es no-reply@, el flujo se DETIENE. Va inmediatamente despues del trigger, antes de gastar un solo token."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4d1f8351-8e7d-4954-a70e-c78b754094be",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3104,
+        -608
+      ],
+      "id": "452ebe09-ab89-4726-957c-0f42338a6c02",
+      "name": "If Clasificación de mensaje"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b101508d-70f7-465a-9828-07c925fad881",
+              "name": "Servicio",
+              "value": "={{ $('JS: Extraer Datos Turno').item.json.Servicio }}",
+              "type": "string"
+            },
+            {
+              "id": "0e20485d-887b-4d48-862f-2a33a1c6739e",
+              "name": "Nombre",
+              "value": "={{ $('JS: Extraer Datos Turno').item.json.Nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "bd1e9a3b-9b13-49dd-b4b0-580535d3dfce",
+              "name": "Apellido",
+              "value": "={{ $('JS: Extraer Datos Turno').item.json.Apellido }}",
+              "type": "string"
+            },
+            {
+              "id": "ec4ed103-752e-4228-9791-7cb26105a667",
+              "name": "Costo",
+              "value": "={{ $('JS: Extraer Datos Turno').item.json.Costo }}",
+              "type": "string"
+            },
+            {
+              "id": "52976457-c795-4a40-b19b-eba4477de55f",
+              "name": "Fecha",
+              "value": "={{ $('JS: Extraer Datos Turno').item.json.Fecha }}",
+              "type": "string"
+            },
+            {
+              "id": "973a48c9-5ea9-492a-894b-2676277c3c92",
+              "name": "Hora",
+              "value": "={{ $('JS: Extraer Datos Turno').item.json.Hora }}",
+              "type": "string"
+            },
+            {
+              "id": "d781101d-030c-4154-8055-f3c7ddfe4c64",
+              "name": "Correo",
+              "value": "={{ $('JS: Extraer Datos Turno').item.json.Correo }}",
+              "type": "string"
+            },
+            {
+              "id": "aaea6ce4-a3cd-45d7-8801-fb8b63e71601",
+              "name": "ChatID",
+              "value": "={{ $('JS: Extraer Datos Turno').item.json.ChatID }}",
+              "type": "string"
+            },
+            {
+              "id": "f6265b5a-7926-4be3-b2e5-7f38ce7924e7",
+              "name": "data.text",
+              "value": "={{ $json.data.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        -912
+      ],
+      "id": "37c78a08-1479-4f94-befa-93caa8ce1a84",
+      "name": "Set: Payload Mínimo Worker"
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "id": "e15abbf8-dd9a-47e6-8adc-8e527633a3fb",
+      "name": "Embeddings Cohere1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        -2288,
+        -256
+      ],
+      "credentials": {
+        "cohereApi": {
+          "id": "la9LDHBk3qSXsw8P",
+          "name": "Cohere account"
+        }
+      },
+      "notes": "El mismo modelo con el que se indexo en la Demo 2. Indexar con uno y consultar con otro devuelve ruido, no error: es el tipo de fallo que no se ve hasta que las respuestas empiezan a salir raras."
+    },
+    {
+      "parameters": {},
+      "id": "2b8cfc04-8ee2-4560-8472-a1781df947e7",
+      "name": "Reranker Cohere1",
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        -2064,
+        -256
+      ],
+      "credentials": {
+        "cohereApi": {
+          "id": "la9LDHBk3qSXsw8P",
+          "name": "Cohere account"
+        }
+      },
+      "notes": "Reordena los 5 fragmentos recuperados y pasa los 3 mejores al prompt. Es lo mas parecido a un umbral de calidad que se puede tener en este stack, pero sigue siendo un corte por cantidad."
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Busca en el asistente parserelachivo el documento Manual de Servicios - Taller Mecánico. USALA OBLIGATORIAMENTE cuando el usuario pregunte por costo de servicio, descripcion/incluye, repuestos incluidos o demora.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "entrega5",
+          "mode": "list",
+          "cachedResultName": "entrega5"
+        },
+        "topK": 5,
+        "useReranker": true,
+        "options": {
+          "pineconeNamespace": "manual-digital"
+        }
+      },
+      "id": "dc9a6b32-e131-45d0-a884-c4e4d9d070cd",
+      "name": "buscar_manual_mlt",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -2304,
+        -432
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "h8Bweg8IdeiUG3v1",
+          "name": "Pinecone account"
+        }
+      },
+      "notes": "STACK 2 · PINECONE + COHERE. Los dos stacks conviven en el mismo agente a proposito, para ver la diferencia en vivo: aca NO hay campo de Minimum Score. Solo Top-K (5), metadata y reranker. El corte es por cantidad, no por calidad, y la regla de contingencia la sostiene enteramente el prompt.\nRequiere que la Demo 2 haya corrido antes con el Manual de Marketing Digital en el namespace 'manual-digital'."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "canal_salida",
+              "type": "string",
+              "value": "WhatsApp / Gmail / CRM (simulado)"
+            },
+            {
+              "id": "s2",
+              "name": "respuesta_final",
+              "type": "string",
+              "value": "={{ $('Evaluar Veredicto3').item.json.respuesta_agente }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "07fdc99a-e952-4f14-8932-79167e6850fd",
+      "name": "Enviar Salida Real",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -592,
+        -912
+      ],
+      "notes": "Rama ACEPTADO: aca iria el envio real al canal de salida (WhatsApp/Gmail/CRM). Simulado con un Set para la demo."
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.fields_Veredicto }}",
+                    "rightValue": "ACEPTADO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "34506660-671a-403d-9add-dd46e6b81c99"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.fields_Veredicto }}",
+                    "rightValue": "CORREGIR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "08c726d4-f07a-4541-bbe0-28a2d2068dae"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.fields_Veredicto }}",
+                    "rightValue": "RECHAZADO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "181fe8cb-12bd-4f33-bbc2-1c0a1a17010e"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": 2
+        }
+      },
+      "id": "36987214-f8e2-4d70-9e41-8fb10f09684e",
+      "name": "Evaluar Veredicto3",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -784,
+        -720
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2081d7c-a8f5-4013-aa3b-dfd0c46f2534",
+              "name": "Veredicto:CORREGIR",
+              "value": "={{ \"Atención: El juez de calidad indicó que tu respuesta previa necesita corrección. Detalle del error: \" + ($('Jude AI').first().json.text || $('Call AI Jude').first().json.output_firstItem || \"Revisa los datos con Airtable\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -592,
+        -240
+      ],
+      "id": "db6b45ab-fc4a-400e-9699-de2913fc8f9f",
+      "name": "Notificar al Orquestador"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "eUVy7nWYFXbupNsV",
+          "mode": "list"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RepuestosIncluidos": "={{ $('JS: Extraer Datos Turno').item.json.RepuestosIncluidos }}",
+            "Servicio": "={{ $('JS: Extraer Datos Turno').item.json.Servicio }}",
+            "Incluye": "={{ $('JS: Extraer Datos Turno').item.json.Incluye }}",
+            "Demora": "={{ $('JS: Extraer Datos Turno').item.json.Demora }}",
+            "Costo": "={{ $('JS: Extraer Datos Turno').item.json.Costo }}"
+          },
+          "matchingColumns": [
+            "RepuestosIncluidos",
+            "Servicio",
+            "Incluye",
+            "Demora",
+            "Costo"
+          ],
+          "schema": [
+            {
+              "id": "RepuestosIncluidos",
+              "displayName": "RepuestosIncluidos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Servicio",
+              "displayName": "Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Incluye",
+              "displayName": "Incluye",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Demora",
+              "displayName": "Demora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Costo",
+              "displayName": "Costo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -944,
+        -1008
+      ],
+      "name": "Call AI Jude",
+      "id": "057c175b-4e3f-4f6e-bb29-e3f5cb327bb2"
+    },
+    {
+      "parameters": {},
+      "id": "7970dc76-37d7-4b96-a071-b75989244e1e",
+      "name": "Stop - Correo automatico (no se responde)1",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -2448,
+        -976
+      ],
+      "notes": "Rama TRUE del filtro anti auto-reply: el correo es automatico y no se procesa. Sin este corte, un 'Fuera de oficina' del otro lado genera un ping-pong infinito de correos que colapsa la casilla y quema el presupuesto de tokens en horas."
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "755835900",
+        "message": "=Hola. Ha ingresado una solicitud de servicio de {{ $('JS: Extraer Datos Turno').item.json.Servicio }}.\nCosto del servicio: {{ $('JS: Extraer Datos Turno').item.json.Costo }}\n\nRevisé la agenda en la base de datos y hay lugar disponible para el día {{ $('JS: Extraer Datos Turno').item.json.Fecha }} a las {{ $('JS: Extraer Datos Turno').item.json.Hora }}\n\nPor favor, revisá la viabilidad técnica y hacé clic en el botón de abajo para aprobar definitivamente este turno y notificar al cliente.",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        -624
+      ],
+      "id": "7c42c0b1-d0ee-43d6-84ab-059ab577594e",
+      "name": "Reportar falla del Orquestador",
+      "webhookId": "04bd4dff-dc32-466e-b846-46c9e2ac1026",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "SZjU7DHSc4LGQZiT",
+          "name": "MLT BOT"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "e8d06048-1cae-4855-bd85-314fde2b7b30",
+      "name": "Stop - Correo automatico (no se responde)2",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        -320
+      ],
+      "notes": "Rama TRUE del filtro anti auto-reply: el correo es automatico y no se procesa. Sin este corte, un 'Fuera de oficina' del otro lado genera un ping-pong infinito de correos que colapsa la casilla y quema el presupuesto de tokens en horas."
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Orquestador Turnos",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_precio_servicio": {
+      "ai_tool": [
+        [
+          {
+            "node": "Orquestador Turnos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_turnos_disponibles": {
+      "ai_tool": [
+        [
+          {
+            "node": "Orquestador Turnos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Avisar al mecánico sobre nueva solicitud a revisar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram: Alerta Cancelación Taller",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Mensaje Chat Cliente": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Buscar memoria (Session_ID)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orquestador Turnos": {
+      "main": [
+        [
+          {
+            "node": "Chat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop - Correo automatico (no se responde)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Factibilidad con Mecánico": {
+      "main": [
+        [
+          {
+            "node": "Switch: Evaluar Respuesta Mecánico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Evaluar Respuesta Mecánico": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Solicitar Aprobación Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notificar al cliente la decisión del mecánico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Solicitar Aprobación Cliente": {
+      "main": [
+        [
+          {
+            "node": "IF - Es auto-reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: ¿El cliente Aceptó Turno?": {
+      "main": [
+        [
+          {
+            "node": "Call Nuevo registro",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Guardar Log Worker 1": {
+      "main": [
+        [
+          {
+            "node": "Notificar al mecánico el nuevo turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Guardar Log Worker 2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "JS: Extraer Datos Turno",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop - Correo automatico (no se responde)2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Nuevo registro": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Guardar Log Worker 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CLIENTE EXISTENTE": {
+      "main": [
+        [
+          {
+            "node": "Orquestador Turnos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NUEVO CLIENTE": {
+      "main": [
+        [
+          {
+            "node": "Orquestador Turnos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Orquestador Turnos",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS: Extraer Datos Turno": {
+      "main": [
+        [
+          {
+            "node": "Call AI Jude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Actualizar contador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resumen JSON (Basic LLM Chain)": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Resumen JSON (Basic LLM Chain)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Registrar resumen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar contador": {
+      "main": [
+        [
+          {
+            "node": "IF - Corresponde resumir? (>=5 intercambios)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Corresponde resumir? (>=5 intercambios)": {
+      "main": [
+        [
+          {
+            "node": "Resumen JSON (Basic LLM Chain)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Airtable - Actualizar solo contador (Upsert liviano)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Actualizar solo contador (Upsert liviano)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar resumen": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Buscar memoria (Session_ID)": {
+      "main": [
+        [
+          {
+            "node": "If Clasificación de mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Call Cambio de opinión",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Descartado - Payload invalido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Cambio de opinión": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Guardar Log Worker 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Es auto-reply?": {
+      "main": [
+        [
+          {
+            "node": "Stop - Correo automatico (no se responde)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set: Payload Mínimo Worker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Clasificación de mensaje": {
+      "main": [
+        [
+          {
+            "node": "CLIENTE EXISTENTE",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NUEVO CLIENTE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Payload Mínimo Worker": {
+      "main": [
+        [
+          {
+            "node": "If: ¿El cliente Aceptó Turno?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "buscar_manual_mlt",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere1": {
+      "ai_reranker": [
+        [
+          {
+            "node": "buscar_manual_mlt",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "buscar_manual_mlt": {
+      "ai_tool": [
+        [
+          {
+            "node": "Orquestador Turnos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluar Veredicto3": {
+      "main": [
+        [
+          {
+            "node": "Enviar Salida Real",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notificar al Orquestador",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reportar falla del Orquestador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Salida Real": {
+      "main": [
+        [
+          {
+            "node": "Validar Factibilidad con Mecánico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notificar al Orquestador": {
+      "main": [
+        [
+          {
+            "node": "Orquestador Turnos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call AI Jude": {
+      "main": [
+        [
+          {
+            "node": "Evaluar Veredicto3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8772bdef-b8a3-4d28-ac1a-85928e5e12ea",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "88111f2ad278f45ab06a346ed0cbab7bc26eb2a1a0211a72352740cb92283f05"
+  },
+  "nodeGroups": [],
+  "id": "pvAAcLLRix5wIfVO",
+  "tags": []
+}

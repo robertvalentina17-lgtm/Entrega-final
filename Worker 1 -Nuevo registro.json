@@ -1,0 +1,626 @@
+{
+  "name": "Worker 1 -Nuevo registro",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLmKFsO7AqAARkl",
+          "mode": "list",
+          "cachedResultName": "Errores en el workflow",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tblLmKFsO7AqAARkl"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Mensaje": "={{ $json.message }}",
+            "Error": "={{ $json.error.level }}",
+            "Nombre": "={{ $json.error.context.itemIndex }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje",
+              "displayName": "Mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2816,
+        -1424
+      ],
+      "id": "54570aa2-116f-4805-a441-6ee5c05fbeaf",
+      "name": "Registra el error1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbloLa14OuyP4dU98",
+          "mode": "list",
+          "cachedResultName": "Agenda",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tbloLa14OuyP4dU98"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $('Start').item.json.Fecha }}",
+            "Status": "Reservado",
+            "Nombre y apellido": "={{ $('Start').item.json.Nombre }} {{ $('Start').item.json.Apellido }}",
+            "Procesamiento con AI": "Registrado",
+            "Servicio": "={{ $('Start').item.json.Servicio }}",
+            "Contacto": "={{ $('Start').item.json.Correo }}",
+            "Hora": "={{ $('Start').item.json.Hora }}",
+            "ID CHAT": "={{ $('Start').item.json.ChatID }}"
+          },
+          "matchingColumns": [
+            "Fecha",
+            "Hora"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Hora",
+              "displayName": "Hora",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Disponible",
+                  "value": "Disponible"
+                },
+                {
+                  "name": "Reservado",
+                  "value": "Reservado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre y apellido",
+              "displayName": "Nombre y apellido",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contacto",
+              "displayName": "Contacto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Procesamiento con AI",
+              "displayName": "Procesamiento con AI",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Servicio",
+              "displayName": "Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ID CHAT",
+              "displayName": "ID CHAT",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Resumen (Nombre y apellido)",
+              "displayName": "Resumen (Nombre y apellido)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Titular (Nombre y apellido)",
+              "displayName": "Titular (Nombre y apellido)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2256,
+        -1632
+      ],
+      "id": "c283a64f-5e95-45e3-91b3-fa47d8f5328c",
+      "name": "Registrar el turno en la agenda",
+      "retryOnFail": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Start').item.json.Correo }}",
+        "subject": "Confirmación de turno  ",
+        "message": "= ¡Hemos registrado tu turno! Te esperamos en nuestro local el día {{ $('Start').item.json.Fecha }}a las{{ $('Start').item.json.Hora }} ! Saludos",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2576,
+        -1824
+      ],
+      "id": "463dcaf1-3e8b-42d9-8da8-c2c76690484f",
+      "name": "Notificar al cliente la confirmación del turno",
+      "webhookId": "ae605458-091a-4235-a3f2-936a6849a067",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GeWaOYKswhRs1gDX",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a38dd0cf-d18d-474e-8a5c-6d27e7b297b8",
+              "name": "Worker_Invocado",
+              "value": "Registro de nuevo turno",
+              "type": "string"
+            },
+            {
+              "id": "47d145ee-4514-4f7a-834a-1e4b9f84068c",
+              "name": "Registro_Airtable agenda",
+              "value": "=Datos de cliente:  {{ $('Start').item.json.Nombre }} {{ $('Start').item.json.Apellido }},{{ $('Start').item.json.Servicio }}, {{ $('Start').item.json.Fecha }},{{ $('Start').item.json.Hora }}",
+              "type": "string"
+            },
+            {
+              "id": "5abc8161-b1a9-46cc-844f-2fb67c9e8734",
+              "name": "Respuesta_Worker",
+              "value": "Confirmación al cliente del registro del turno",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2768,
+        -1920
+      ],
+      "id": "f51b2f15-8c50-4901-b92c-7048feeac93b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Fecha",
+              "type": "any"
+            },
+            {
+              "name": "Apellido",
+              "type": "any"
+            },
+            {
+              "name": "Nombre",
+              "type": "any"
+            },
+            {
+              "name": "Servicio",
+              "type": "any"
+            },
+            {
+              "name": "Correo",
+              "type": "any"
+            },
+            {
+              "name": "Hora",
+              "type": "any"
+            },
+            {
+              "name": "ChatID",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "id": "de6fd87d-e1f8-48ca-8d5a-3eca1b5fcb28",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1296,
+        -1616
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "operation": "search",
+        "limit": 1,
+        "filterGroupsUi": {
+          "filterGroupsValues": [
+            {
+              "filtersUi": {
+                "filterValues": [
+                  {
+                    "propertyName": "email|string",
+                    "value": "={{ $json.Correo }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "id": "0774d2a4-35f2-490d-8929-3c00a3aefde5",
+      "name": "HubSpot - Buscar contacto (Look up) (2)",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.1,
+      "position": [
+        1520,
+        -1616
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "p2CvrSht0XXovENg",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "notes": "NODO 2 DE LA RUBRICA: la compuerta Look up ANTES del Create. Busca el contacto por email. Always Output Data debe estar ON (Settings del nodo): si no encuentra nada, el flujo sigue por la rama de contacto nuevo en vez de cortarse. Si el filtro aparece vacio al importar, recrealo desde la UI: Filter Groups -> propiedad email -> operador Equal -> valor desde el Set de limpieza."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ex-1",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "06e5d1f8-95b7-4903-b864-0bd1dbc36ad2",
+      "name": "IF - El contacto ya existe?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1744,
+        -1616
+      ],
+      "notes": "La ramificacion existe / no existe que evita el Error 409 (Conflict, registro duplicado): si el Look up devolvio un id, se actualiza; si vino vacio, se crea. Asi la base queda con UNA fila por cliente."
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "email": "={{ $('Start').item.json.Correo }}",
+        "additionalFields": {
+          "firstName": "={{ $('Start').item.json.Apellido }} {{ $('Start').item.json.Nombre }}"
+        },
+        "options": {}
+      },
+      "id": "83c6d618-d201-40f1-8573-e12e608827bf",
+      "name": "HubSpot - Actualizar contacto (Update)",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.1,
+      "position": [
+        1936,
+        -1728
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "p2CvrSht0XXovENg",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "notes": "Rama SI: el contacto ya existia, se actualiza sin duplicar. Detalle del conector: la operacion nativa de HubSpot es 'Create/Update' (upsert por email), el patron anti-409 ya incorporado. El Look up + IF esta igual en el lienzo porque es EL patron general que la rubrica evalua y que vas a necesitar en CRMs cuya API separa Create de Update."
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "email": "={{ $('Start').item.json.Correo }}",
+        "additionalFields": {
+          "firstName": "={{ $('Start').item.json.Nombre }} {{ $('Start').item.json.Apellido }}"
+        },
+        "options": {}
+      },
+      "id": "5e4e1ee8-ff75-4c9d-84de-430afaa13363",
+      "name": "HubSpot - Crear contacto (Create)",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.1,
+      "position": [
+        1952,
+        -1440
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "p2CvrSht0XXovENg",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "notes": "Rama NO: contacto nuevo, se da de alta con email y nombre. Minimo privilegio en accion: el flujo solo escribe los campos estrictamente necesarios (email, nombre), nada mas."
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Notificar al cliente la confirmación del turno": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registra el error1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar el turno en la agenda": {
+      "main": [
+        [
+          {
+            "node": "Notificar al cliente la confirmación del turno",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registra el error1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "HubSpot - Buscar contacto (Look up) (2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot - Buscar contacto (Look up) (2)": {
+      "main": [
+        [
+          {
+            "node": "IF - El contacto ya existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - El contacto ya existe?": {
+      "main": [
+        [
+          {
+            "node": "HubSpot - Actualizar contacto (Update)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HubSpot - Crear contacto (Create)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot - Actualizar contacto (Update)": {
+      "main": [
+        [
+          {
+            "node": "Registrar el turno en la agenda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot - Crear contacto (Create)": {
+      "main": [
+        [
+          {
+            "node": "Registrar el turno en la agenda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "99308709-c900-486e-bcf0-6db176cc894e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "88111f2ad278f45ab06a346ed0cbab7bc26eb2a1a0211a72352740cb92283f05"
+  },
+  "nodeGroups": [],
+  "id": "WyA7Q2Y9jeEQhdo9",
+  "tags": []
+}

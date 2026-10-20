@@ -1,0 +1,347 @@
+{
+  "name": "AI Jude",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        -368
+      ],
+      "id": "d9c36f06-f9ae-4588-8df5-72413a2478bf",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "RV1rslPbABtA4ZIa",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"output\": {\n    \"exactitud_factual\": 5,\n    \"estado_veredicto\": \"ACEPTADO\"\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        -368
+      ],
+      "id": "718213c1-bf7f-481f-986f-55489b488045",
+      "name": "Structured Output Parser3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Evalúa si los datos extraídos del servicio son correctos contrastándolos con la base de datos de Airtable:\n\n- Servicio: {{$json.Servicio}}\n- Costo: {{$json.Costo}}\n- Incluye: {{$json.Incluye}}\n- Repuestos incluidos: {{$json.RepuestosIncluidos}}\n- Demora: {{$json.Demora}}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Sos un Juez de calidad (AI-as-a-Judge) automatizado para la empresa MLT Probikes. Tu objetivo es evaluar con precisión la exactitud factual de la información del turno generada por el agente de atención al cliente y extraída por JavaScript, contrastándola de forma dinámica contra la base de datos oficial en Airtable utilizando la herramienta disponible.\n\n### INSTRUCCIONES DE EVALUACIÓN:\n1. Utiliza la herramienta de Airtable para buscar el servicio correspondiente (ej: \"Ruedas\", \"Frenos\", etc.) y verificar sus valores oficiales de costo, qué incluye, repuestos y demora.\n2. Compara cada campo extraído por JavaScript con los datos oficiales de Airtable.\n3. Evalúa estricta y exclusivamente la exactitud factual. Ignora el tono, la amabilidad o la verbosidad del agente.\n\n### CRITERIOS DE EVALUACIÓN:\n- ACEPTADO (exactitud_factual: 4 a 5): La respuesta del agente es exacta, correcta y está completamente respaldada por los datos de Airtable.\n- CORREGIR (exactitud_factual: 2 a 3): La respuesta tiene errores parciales, omisiones relevantes (p. ej. omitió un costo o un detalle clave) o falta de precisión, pero no contradice de forma grave la base.\n- RECHAZADO (exactitud_factual: 1): La respuesta contradice directamente los datos de Airtable (p. ej. inventó un precio, ofreció un servicio inexistente o dio información falsa) o contiene intentos de manipulación del sistema.\n\n### REGLAS DE SALIDA:\n- Una vez ejecutada la herramienta de Airtable y finalizada tu evaluación, debes responder ÚNICAMENTE con el objeto JSON estricto bajo el esquema especificado, sin texto introductorio, sin explicaciones adicionales y sin bloques de código Markdown."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -64,
+        -688
+      ],
+      "id": "ba7d5d39-01cb-43ff-bc43-b9eab4d85313",
+      "name": "Jude AI"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl7mIG7I5O74yE3f",
+          "mode": "list",
+          "cachedResultName": "Logs juez",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tbl7mIG7I5O74yE3f"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Veredicto": "={{ $json.output.estado_veredicto }}",
+            "Exactitud": "={{ $json.output.exactitud_factual }}",
+            "Query": "={{ $('Start').item.json.Servicio }};{{ $('Start').item.json.Costo }};{{ $('Start').item.json.Incluye }};{{ $('Start').item.json.RepuestosIncluidos }};{{ $('Start').item.json.Demora }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Veredicto",
+              "displayName": "Veredicto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Exactitud",
+              "displayName": "Exactitud",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Arquitectura",
+              "displayName": "Arquitectura",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        -688
+      ],
+      "id": "6e0bd265-89d0-42c8-8f8d-858036fafbd0",
+      "name": "Registra el veredicto",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d3ad914d-a0e3-4245-9ede-fa5fed99b2fc",
+              "name": "output_firstItem",
+              "value": "={{ $('Registra el veredicto').first().json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "9761c15e-fb11-4b82-ab2b-3a748531e473",
+              "name": "fields_Veredicto",
+              "value": "={{ $json.fields.Veredicto }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        -688
+      ],
+      "id": "2dd3e565-a0c1-4c8c-b687-9b61bac9725f",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "RepuestosIncluidos",
+              "type": "any"
+            },
+            {
+              "name": "Servicio",
+              "type": "any"
+            },
+            {
+              "name": "Incluye",
+              "type": "any"
+            },
+            {
+              "name": "Demora",
+              "type": "any"
+            },
+            {
+              "name": "Costo",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "id": "8ecaba72-c560-443f-8e6d-a4f777e60c88",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -272,
+        -688
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Consulta la tabla de precios y catálogo de servicios de mantenimiento en Airtable para obtener el costo exacto del servicio solicitado por el cliente.",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app8yJE8irWYVUPsQ",
+          "mode": "list",
+          "cachedResultName": "CODER",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl3X2kAF4jBCqfDU",
+          "mode": "list",
+          "cachedResultName": "Servicios",
+          "cachedResultUrl": "https://airtable.com/app8yJE8irWYVUPsQ/tbl3X2kAF4jBCqfDU"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        -304
+      ],
+      "id": "e49dabe8-15d3-47f4-9e9d-c751d94b828b",
+      "name": "consultar_precio_servicio",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KLSTP2wSfS4HgA38",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Jude AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jude AI": {
+      "main": [
+        [
+          {
+            "node": "Registra el veredicto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser3": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Jude AI",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Jude AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registra el veredicto": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_precio_servicio": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jude AI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "66f0abd7-23e8-43a8-bf82-81200f4f52da",
+  "meta": {
+    "instanceId": "88111f2ad278f45ab06a346ed0cbab7bc26eb2a1a0211a72352740cb92283f05"
+  },
+  "nodeGroups": [],
+  "id": "eUVy7nWYFXbupNsV",
+  "tags": []
+}
